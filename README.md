@@ -16,7 +16,7 @@ picks the move I really played.
 
 ## Progress
 - [x] Day 1: project setup, game fetcher (`training/fetch_games.py`)
-- [ ] Day 2: training data prep with recency and time-control weighting
+- [x] Day 2: training data prep with recency and time-control weighting
 - [ ] Day 3: fine-tuning script and first training run
 - [ ] Day 4: opening book builder
 - [ ] Day 5: UCI engine and ONNX export
@@ -32,9 +32,14 @@ picks the move I really played.
 
 ## Quick start (so far)
 ```
-python training/fetch_games.py GMMark12
+pip install -r training/requirements.txt
+pip install --no-deps maia2==0.10.0
+python training/fetch_games.py GMMark12   # every game -> data/games.pgn
+python training/prep_data.py GMMark12     # training examples -> data/dataset.pt
 ```
-This saves every game to `data/games.pgn`. It uses only the Python standard library.
+`prep_data.py` turns each position where I was to move into a training example.
+Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
+My 150 most recent games are kept aside as a test set and are never trained on.
 
 ## Credits
 - [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024): the base human-move model

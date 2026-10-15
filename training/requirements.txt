@@ -1,0 +1,16 @@
+# Training dependencies. (Running the finished bot only needs chess, onnxruntime and numpy.)
+# Install with:
+#   pip install -r training/requirements.txt
+#   pip install --no-deps maia2==0.10.0
+# maia2 is installed with --no-deps because it pins old versions (e.g. pyzstd==0.15.9)
+# that have no prebuilt wheels for Python 3.13 on Windows. These newer versions work with it.
+torch
+chess
+numpy
+einops
+pyyaml
+pandas
+tqdm
+gdown
+pyzstd
+requests

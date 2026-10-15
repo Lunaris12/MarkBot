@@ -28,7 +28,7 @@ def get(url, retries=3):
             with urllib.request.urlopen(req, timeout=30) as resp:
                 return resp.read().decode("utf-8")
         except urllib.error.HTTPError as e:
-            if e.code == 429 and attempt < retries - 1:  # rate limited: back off
+            if e.code == 429 and attempt < retries - 1:  # rate limited, back off
                 time.sleep(5 * (attempt + 1))
                 continue
             raise
@@ -68,7 +68,7 @@ def main():
             print(f"{month}: {n} games")
             if pgn:
                 f.write(pgn + "\n\n")
-            time.sleep(0.2)  # be polite to the API: requests one at a time
+            time.sleep(0.2)  # requests one at a time
     print(f"\nSaved {total} games from {len(archives)} months to {args.out}")
 
 
