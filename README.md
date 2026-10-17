@@ -17,7 +17,7 @@ picks the move I really played.
 ## Progress
 - [x] Day 1: project setup, game fetcher (`training/fetch_games.py`)
 - [x] Day 2: training data prep with recency and time-control weighting
-- [ ] Day 3: fine-tuning script and first training run
+- [x] Day 3: fine-tuning script and first training run
 - [ ] Day 4: opening book builder
 - [ ] Day 5: UCI engine and ONNX export
 - [ ] Day 6: held-out evaluation
@@ -36,10 +36,23 @@ pip install -r training/requirements.txt
 pip install --no-deps maia2==0.10.0
 python training/fetch_games.py GMMark12   # every game -> data/games.pgn
 python training/prep_data.py GMMark12     # training examples -> data/dataset.pt
+python training/finetune.py               # fine-tuned model -> models/mark_model.pt
 ```
 `prep_data.py` turns each position where I was to move into a training example.
 Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
 My 150 most recent games are kept aside as a test set and are never trained on.
+
+`finetune.py` takes Maia-2's rapid model, which already plays like a typical human at each rating,
+and keeps training it on my games so it drifts toward playing like me. Moves from recent and rapid games
+pull harder than moves from old blitz games.
+
+To keep training honest, I hold back the 100 games right before the test set. Every 250 steps the script
+checks how often the model would have picked the move I actually played in those games, and it only saves
+the model when that beats its previous best. The test games stay untouched until evaluation, so they're a
+fair final check.
+
+A full run (two passes over the data) takes about 40 minutes on a regular CPU, and it'll use a GPU
+automatically if PyTorch finds one. The log from my first run is in `results/train_log.txt`.
 
 ## Credits
 - [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024): the base human-move model

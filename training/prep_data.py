@@ -1,18 +1,18 @@
-"""Turn a player's PGN into training data for fine-tuning Maia-2.
+"""Turn my chess.com games into training data for Maia-2.
 
-Each training example is one position where the player was to move:
-  - the board, encoded the way Maia-2 expects
-  - the move the player actually made
-  - the player's rating and the opponent's rating in that game
-  - a weight saying how much this example should count in training
+For every position where it was my turn, this saves what the board looked like, the move I
+played, both players' ratings, and a weight for how much that move should count.
 
-Weighting:
-  - Recent games count more: weight halves for every year of age, never below 0.2.
-  - Rapid games count 2x, bullet 0.5x, since I want the bot to play like my rapid self.
-  - Moves made with under 10 seconds on the clock are dropped (moves under time pressure aren't my style).
+Not every move counts the same:
+  - Newer games matter more. A game's weight halves for every year since I played it,
+    but never drops below 0.2, so old games still count a little.
+  - Rapid games count double and bullet games count half, because I want the bot to play
+    like my rapid self.
+  - Moves I made with under 10 seconds left get thrown out. Those are time-pressure moves,
+    not how I really play.
 
-The most recent --holdout games are marked as test data and must never be trained on.
-They are used later to measure how often the bot picks the move I really played.
+My most recent games (150 by default) are set aside as a test set and never trained on.
+Later I use them to check how often the bot picks the move I actually played.
 
 Usage:
   python training/prep_data.py GMMark12

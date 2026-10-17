@@ -1,0 +1,47 @@
+device cpu | train 57634 positions | validation 3587 positions (100 games) | test 4615 positions (untouched)
+base Maia-2 validation match: 0.509
+step 50/1801  loss 1.589  47s
+step 100/1801  loss 1.477  93s
+step 150/1801  loss 1.162  140s
+step 200/1801  loss 1.418  187s
+step 250/1801  loss 1.547  233s
+VALIDATION step 250: match 0.538  (new best, saved)
+step 300/1801  loss 1.157  295s
+step 350/1801  loss 1.393  341s
+step 400/1801  loss 1.438  388s
+step 450/1801  loss 1.471  434s
+step 500/1801  loss 1.279  480s
+VALIDATION step 500: match 0.547  (new best, saved)
+step 550/1801  loss 1.400  541s
+step 600/1801  loss 1.293  588s
+step 650/1801  loss 1.045  633s
+step 700/1801  loss 1.032  680s
+step 750/1801  loss 1.495  726s
+VALIDATION step 750: match 0.556  (new best, saved)
+step 800/1801  loss 1.734  788s
+step 850/1801  loss 1.128  835s
+step 900/1801  loss 1.068  881s
+step 950/1801  loss 1.457  927s
+step 1000/1801  loss 1.497  973s
+VALIDATION step 1000: match 0.549
+step 1050/1801  loss 1.184  1035s
+step 1100/1801  loss 1.282  1081s
+step 1150/1801  loss 1.079  1127s
+step 1200/1801  loss 1.098  1173s
+step 1250/1801  loss 1.402  1221s
+VALIDATION step 1250: match 0.548
+step 1300/1801  loss 1.629  1284s
+step 1350/1801  loss 1.413  1330s
+step 1400/1801  loss 1.464  1376s
+step 1450/1801  loss 1.261  1423s
+step 1500/1801  loss 1.260  1468s
+VALIDATION step 1500: match 0.555
+step 1550/1801  loss 0.958  1530s
+step 1600/1801  loss 1.238  1577s
+step 1650/1801  loss 1.220  1624s
+step 1700/1801  loss 1.077  1670s
+step 1750/1801  loss 1.499  1717s
+VALIDATION step 1750: match 0.558  (new best, saved)
+step 1800/1801  loss 1.245  1780s
+VALIDATION step 1801: match 0.559  (new best, saved)
+done in 1796s | best validation match 0.559 | model saved to models/mark_model.pt
