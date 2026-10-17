@@ -18,7 +18,7 @@ picks the move I really played.
 - [x] Day 1: project setup, game fetcher (`training/fetch_games.py`)
 - [x] Day 2: training data prep with recency and time-control weighting
 - [x] Day 3: fine-tuning script and first training run
-- [ ] Day 4: opening book builder
+- [x] Day 4: opening book builder
 - [ ] Day 5: UCI engine and ONNX export
 - [ ] Day 6: held-out evaluation
 - [ ] Day 7: Windows setup scripts
@@ -37,6 +37,7 @@ pip install --no-deps maia2==0.10.0
 python training/fetch_games.py GMMark12   # every game -> data/games.pgn
 python training/prep_data.py GMMark12     # training examples -> data/dataset.pt
 python training/finetune.py               # fine-tuned model -> models/mark_model.pt
+python training/build_book.py GMMark12    # opening book -> models/book.json
 ```
 `prep_data.py` turns each position where I was to move into a training example.
 Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
@@ -53,6 +54,14 @@ fair final check.
 
 A full run (two passes over the data) takes about 40 minutes on a regular CPU, and it'll use a GPU
 automatically if PyTorch finds one. The log from my first run is in `results/train_log.txt`.
+
+`build_book.py` records what I actually play in the first 12 moves of my games, so the bot can open the way
+I do instead of guessing. If I've reached a position in at least 3 games, the bot picks from the moves I
+played there (anything I've played at least twice), about as often as I played each one, with recent games
+counting more. Once a game leaves my usual lines, the neural net takes over.
+
+By default the book skips my 150 most recent games, so it doesn't look at the test set. For the version the
+bot actually plays with, I build it from every game with `--holdout 0`.
 
 ## Credits
 - [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024): the base human-move model
