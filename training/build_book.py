@@ -59,6 +59,39 @@ def load_games(pgn_path, user):
     return games
 
 
+def make_book(games, max_moves=12, min_games=3, min_plays=2):
+    """Count what I played in the opening and keep the positions and moves that pass the rules above.
+
+    Takes games from load_games, oldest first and returns {position: {move: weight}}.
+    Also used by evaluate.py so the bot gets scored with exactly the same book logic.
+    """
+    latest = games[-1][0]
+
+    # For each position, and each move I played there, counts how many times, and the total weight
+    counts = collections.defaultdict(lambda: collections.defaultdict(lambda: [0, 0.0]))
+    for date, _, g, white in games:
+        age_years = (latest - date).days / 365
+        weight = max(0.5 ** age_years, RECENCY_FLOOR)
+        board = g.board()
+        for ply, move in enumerate(g.mainline_moves()):
+            if ply >= 2 * max_moves:
+                break
+            if board.turn == (chess.WHITE if white else chess.BLACK):
+                entry = counts[position_key(board)][move.uci()]
+                entry[0] += 1
+                entry[1] += weight
+            board.push(move)
+
+    book = {}
+    for pos, moves in counts.items():
+        if sum(n for n, _ in moves.values()) < min_games:
+            continue
+        kept = {m: round(w, 3) for m, (n, w) in moves.items() if n >= min_plays}
+        if kept:
+            book[pos] = kept
+    return book
+
+
 def describe(book, board):
     """What I play in a position, written like 'e4 70%, d4 30%', for the printout at the end."""
     moves = book.get(position_key(board))
@@ -88,30 +121,7 @@ def main():
         games = games[:-args.holdout]
     if not games:
         raise SystemExit("No games left to build a book from.")
-    latest = games[-1][0]
-
-    # For each position, and each move I played there, counts how many times, and the total weight
-    counts = collections.defaultdict(lambda: collections.defaultdict(lambda: [0, 0.0]))
-    for date, _, g, white in games:
-        age_years = (latest - date).days / 365
-        weight = max(0.5 ** age_years, RECENCY_FLOOR)
-        board = g.board()
-        for ply, move in enumerate(g.mainline_moves()):
-            if ply >= 2 * args.max_moves:
-                break
-            if board.turn == (chess.WHITE if white else chess.BLACK):
-                entry = counts[position_key(board)][move.uci()]
-                entry[0] += 1
-                entry[1] += weight
-            board.push(move)
-
-    book = {}
-    for pos, moves in counts.items():
-        if sum(n for n, _ in moves.values()) < args.min_games:
-            continue
-        kept = {m: round(w, 3) for m, (n, w) in moves.items() if n >= args.min_plays}
-        if kept:
-            book[pos] = kept
+    book = make_book(games, args.max_moves, args.min_games, args.min_plays)
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:

@@ -20,7 +20,7 @@ picks the move I really played.
 - [x] Day 3: fine-tuning script and first training run
 - [x] Day 4: opening book builder
 - [x] Day 5: UCI engine and ONNX export
-- [ ] Day 6: held-out evaluation
+- [x] Day 6: held-out evaluation
 - [ ] Day 7: Windows setup scripts
 - [ ] Day 8: lichess-bot config and deploy docs
 - [ ] Day 9: server setup script and systemd service
@@ -39,6 +39,7 @@ python training/prep_data.py GMMark12     # training examples -> data/dataset.pt
 python training/finetune.py               # fine-tuned model -> models/mark_model.pt
 python training/build_book.py GMMark12    # opening book -> models/book.json
 python training/export_onnx.py            # lightweight model -> models/mark_model.onnx
+python training/evaluate.py GMMark12      # how well it matches me -> results/eval_results.json
 ```
 `prep_data.py` turns each position where I was to move into a training example.
 Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
@@ -82,6 +83,24 @@ python engine/markbot.py
 ```
 In the app's engine settings you can change its rating, turn the opening book off, or turn down the
 randomness so it always plays my single most likely move.
+
+## How well it plays like me
+`training/evaluate.py` tests the bot on my 150 most recent games, which it never trained on. For every
+position where it was my turn, it checks whether the bot's top choice is the move I actually played, and
+compares that with plain Maia-2, the model I started from. The opening book it uses for this is built
+without those games as well.
+
+| | All moves | First 12 moves | After move 12 |
+|---|---|---|---|
+| Plain Maia-2 | 49.4% | 43.4% | 53.1% |
+| My fine-tuned model | 54.8% | 57.5% | 53.1% |
+| MarkBot (book + model) | 55.3% | 59.0% | 53.1% |
+
+That's 4,615 positions from games played between February 2024 and October 2026, and "first 12 moves" is
+the same stretch my opening book covers. All of the gain is in the opening, where I tend to make the same moves so the
+bot goes from guessing my move 43% of the time to 59%. After move 12 it does no better than plain Maia-2, so
+my middlegame and endgame moves look a lot like any other ~1800 player's, at least as far as 2,000 games can
+show. Nobody plays the same move in the same spot every time, so 100% isn't possible.
 
 ## Credits
 - [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024): the base human-move model

@@ -1,0 +1,20 @@
+{
+  "test_games": 150,
+  "positions": 4615,
+  "positions_from_book": 450,
+  "Base Maia-2": {
+    "all": 0.49404117009750814,
+    "first_12_moves": 0.433886662850601,
+    "after_move_12": 0.5306834030683403
+  },
+  "Fine-tuned model": {
+    "all": 0.5477789815817985,
+    "first_12_moves": 0.5752718946765885,
+    "after_move_12": 0.5310320781032078
+  },
+  "MarkBot (book + model)": {
+    "all": 0.553196099674973,
+    "first_12_moves": 0.589582140812822,
+    "after_move_12": 0.5310320781032078
+  }
+}
