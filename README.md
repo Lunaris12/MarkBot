@@ -19,7 +19,7 @@ picks the move I really played.
 - [x] Day 2: training data prep with recency and time-control weighting
 - [x] Day 3: fine-tuning script and first training run
 - [x] Day 4: opening book builder
-- [ ] Day 5: UCI engine and ONNX export
+- [x] Day 5: UCI engine and ONNX export
 - [ ] Day 6: held-out evaluation
 - [ ] Day 7: Windows setup scripts
 - [ ] Day 8: lichess-bot config and deploy docs
@@ -38,6 +38,7 @@ python training/fetch_games.py GMMark12   # every game -> data/games.pgn
 python training/prep_data.py GMMark12     # training examples -> data/dataset.pt
 python training/finetune.py               # fine-tuned model -> models/mark_model.pt
 python training/build_book.py GMMark12    # opening book -> models/book.json
+python training/export_onnx.py            # lightweight model -> models/mark_model.onnx
 ```
 `prep_data.py` turns each position where I was to move into a training example.
 Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
@@ -62,6 +63,25 @@ counting more. Once a game leaves my usual lines, the neural net takes over.
 
 By default the book skips my 150 most recent games, so it doesn't look at the test set. For the version the
 bot actually plays with, I build it from every game with `--holdout 0`.
+
+## Playing against it
+`engine/markbot.py` is the bot itself. Its in UCI, the language chess programs use to talk to engines,
+so it works in any chess GUI and with lichess-bot. When it's the bot's turn, it checks my opening book first and
+if the position isn't there, it asks the model which moves I'd likely play at an 1800 level and picks one based on those chances. It doesn't calculate ahead like Stockfish. It just plays the move I would which includes the same blunders I make.
+
+The engine runs on ONNX instead of PyTorch, so it only needs three small packages and picks a move in a
+few milliseconds. It needs `mark_model.onnx`, `moves.json` and `book.json` in the `models/` folder.
+
+Some chess apps, like En Croissant on Windows, only load `.exe` engines, so `engine/build_exe.bat` packs
+the bot into a single `engine/markbot.exe` with PyInstaller. Double-click the script, then add `engine/markbot.exe` as a UCI engine in the chess app. It still reads the model files from `models/`, so keep the `.exe` in the `engine/` folder.
+
+Apps that can run a Python script directly, like Cute Chess, can use it without building anything:
+```
+pip install -r engine/requirements.txt
+python engine/markbot.py
+```
+In the app's engine settings you can change its rating, turn the opening book off, or turn down the
+randomness so it always plays my single most likely move.
 
 ## Credits
 - [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024): the base human-move model

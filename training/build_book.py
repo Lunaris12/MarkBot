@@ -7,8 +7,8 @@ one of my moves, choosing each about as often as I did. Once the game leaves my 
 neural net takes over.
 
 A few rules so the book is really my opening repertoire:
-  - Newer games count more, same as in prep_data.py (a game's weight halves every year,
-    but never drops below 0.2).
+  - Newer games count more, same as in prep_data.py so a game's weight halves every year,
+    but never drops below 0.2.
   - A position only makes it in if I've reached it in at least 3 games.
   - A move only counts if I played it there at least twice, so a one time experiment
     or a mouse slip doesn't end up in my repertoire.

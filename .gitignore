@@ -31,3 +31,9 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Engine build (engine/build_exe.bat): the .exe is rebuilt, not committed
+build/
+*.spec
+engine/markbot.exe
+.venv-engine/

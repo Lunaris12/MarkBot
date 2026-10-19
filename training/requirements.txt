@@ -14,3 +14,7 @@ tqdm
 gdown
 pyzstd
 requests
+# for exporting the model to ONNX (export_onnx.py)
+onnx
+onnxscript
+onnxruntime

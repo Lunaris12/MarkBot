@@ -1,0 +1,4 @@
+# What the bot needs to run. (Training needs more, see training/requirements.txt.)
+chess
+onnxruntime
+numpy
