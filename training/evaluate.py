@@ -69,7 +69,7 @@ def base_maia_picks(positions, base_dir):
         chunk = positions[start:start + 512]
         boards, legal, elo_s, elo_o, flipped = [], [], [], [], []
         for p in chunk:
-            # Same flip as in training: Maia-2 always sees the board from White's side.
+            # Same flip as in training since Maia-2 always sees the board from White's side.
             flip = p["board"].turn == chess.BLACK
             b = p["board"].mirror() if flip else p["board"]
             mask = torch.zeros(len(all_moves), dtype=torch.bool)
@@ -114,7 +114,7 @@ def main():
         model_picks.append(model_pick)
         book_moves = bot.book.get(position_key(p["board"]))
         if book_moves:
-            # The bot's most likely book move is the one I played most (by weight) in that spot.
+            # The bot's most likely book move is the one I played most in that spot.
             bot_picks.append(max(book_moves, key=book_moves.get))
             from_book += 1
         else:

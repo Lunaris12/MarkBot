@@ -21,7 +21,7 @@ picks the move I really played.
 - [x] Day 4: opening book builder
 - [x] Day 5: UCI engine and ONNX export
 - [x] Day 6: held-out evaluation
-- [ ] Day 7: Windows setup scripts
+- [x] Day 7: Windows setup scripts
 - [ ] Day 8: lichess-bot config and deploy docs
 - [ ] Day 9: server setup script and systemd service
 - [ ] Day 10: bot live on Lichess around the clock
@@ -41,6 +41,12 @@ python training/build_book.py GMMark12    # opening book -> models/book.json
 python training/export_onnx.py            # lightweight model -> models/mark_model.onnx
 python training/evaluate.py GMMark12      # how well it matches me -> results/eval_results.json
 ```
+On Windows we can do the quick start without having to manually input all of the above commands. `windows\setup.bat` makes a `.venv` and installs everything
+once. `windows\retrain.bat` then runs all six steps above in
+order and stops if one fails. So retraining on my newest games is very easy and just takes about 45 minutes of
+waiting. It builds the bot's opening book from every game (`--holdout 0`), and the evaluation builds its own
+book without the test games, so the results stay fair. A retrain overwrites `results/train_log.txt` and
+`results/eval_results.json` with the new run.
 `prep_data.py` turns each position where I was to move into a training example.
 Recent games and rapid games count more, and moves made with under 10 seconds left are dropped.
 My 150 most recent games are kept aside as a test set and are never trained on.
