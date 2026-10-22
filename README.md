@@ -22,7 +22,7 @@ picks the move I really played.
 - [x] Day 5: UCI engine and ONNX export
 - [x] Day 6: held-out evaluation
 - [x] Day 7: Windows setup scripts
-- [ ] Day 8: lichess-bot config and deploy docs
+- [x] Day 8: lichess-bot config and launcher
 - [ ] Day 9: server setup script and systemd service
 - [ ] Day 10: bot live on Lichess around the clock
 - [ ] Day 11: experiment: rapid-only vs. all games
@@ -89,6 +89,15 @@ python engine/markbot.py
 ```
 In the app's engine settings you can change its rating, turn the opening book off, or turn down the
 randomness so it always plays my single most likely move.
+
+## On Lichess
+You can play against the bot on Lichess by searching for MarkBot12 and clicking Challenge. It only plays real
+people, one game at a time, in bullet, blitz, rapid or classical, and the games can be casual or rated. It never
+resigns or offers a draw since it has no idea when a game is lost, so every game gets played out to the end.
+If you want to run it yourself, `windows\lichess_bot.bat` downloads
+[lichess-bot](https://github.com/lichess-bot-devs/lichess-bot), sets up its config from
+`deploy/lichess-bot-config.yml` and puts the bot online. You'll need a brand new Lichess account for the bot
+and a token for it.
 
 ## How well it plays like me
 `training/evaluate.py` tests the bot on my 150 most recent games, which it never trained on. For every

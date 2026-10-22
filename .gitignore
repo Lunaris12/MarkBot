@@ -1,6 +1,7 @@
-# Secrets: the real lichess-bot config holds the Lichess API token.
-# Only config.yml.example (with a placeholder) is ever committed.
-lichess-bot/config.yml
+# lichess-bot/config.yml has my Lichess token in it, so the whole lichess-bot folder that
+# windows/lichess_bot.bat downloads stays out of the repo. The only config that gets committed is
+# deploy/lichess-bot-config.yml, which has a placeholder instead of the real token.
+lichess-bot/
 *.token
 .env
 

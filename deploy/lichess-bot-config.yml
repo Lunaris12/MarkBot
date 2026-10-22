@@ -1,0 +1,51 @@
+# These are my lichess-bot settings for MarkBot. Copy this file into the lichess-bot folder as config.yml
+# and paste the bot account's token below. That copy is in .gitignore so the token never ends up on GitHub,
+# and anything I didn't list here just uses lichess-bot's own defaults.
+
+token: "PASTE_YOUR_TOKEN_HERE"   # the bot account's token, treat it like a password
+url: "https://lichess.org/"       # just the Lichess address, but lichess-bot won't start without it
+
+engine:
+  dir: "../engine/"              # where MarkBot is, starting from the lichess-bot folder
+  name: "markbot.exe"            # on Windows this is the .exe that engine/build_exe.bat makes
+  # Linux or a server doesn't have the .exe, so swap the line above for the two below to run the
+  # Python file instead. lichess-bot also wants that file marked executable there, so run
+  # chmod +x engine/markbot.py first.
+  # name: "markbot.py"
+  # interpreter: "../.venv/bin/python"
+  protocol: "uci"
+  ponder: false                  # MarkBot picks its move instantly so there's nothing to think about on their time
+  uci_options:                   # the same settings you'd change in a chess app
+    Rating: 1800
+    OpponentRating: 1800
+    UseBook: true
+    Randomness: 100
+    MinMoveProb: 5
+  draw_or_resign:
+    # MarkBot doesn't actually evaluate positions so it has no idea when a game is lost or drawn.
+    # I'd rather it play every game out to the end like a stubborn 1800 would.
+    resign_enabled: false
+    offer_draw_enabled: false
+
+challenge:
+  concurrency: 1                 # only one game at a time
+  accept_bot: false              # only real people, otherwise other bots would keep it busy all day
+  variants:
+    - standard
+  time_controls:                 # Lichess doesn't let bots play UltraBullet anyway
+    - bullet
+    - blitz
+    - rapid
+    - classical
+  modes:
+    - casual
+    - rated
+
+greeting:
+  hello: "Hi, I'm {me}! I'm a bot trained on GMMark12's chess.com games so I play like him, around 1800 and mistakes included. Good luck!"
+  goodbye: "Good game!"
+  hello_spectators: "This bot plays like GMMark12, mistakes and all."
+  goodbye_spectators: "Thanks for watching!"
+
+matchmaking:
+  allow_matchmaking: false       # it waits for people to challenge it instead of going out and challenging bots
