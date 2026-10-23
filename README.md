@@ -23,7 +23,7 @@ picks the move I really played.
 - [x] Day 6: held-out evaluation
 - [x] Day 7: Windows setup scripts
 - [x] Day 8: lichess-bot config and launcher
-- [ ] Day 9: server setup script and systemd service
+- [x] Day 9: server setup script and systemd service
 - [ ] Day 10: bot live on Lichess around the clock
 - [ ] Day 11: experiment: rapid-only vs. all games
 - [ ] Day 12: set the opponent rating from the real Lichess opponent
@@ -98,6 +98,19 @@ If you want to run it yourself, `windows\lichess_bot.bat` downloads
 [lichess-bot](https://github.com/lichess-bot-devs/lichess-bot), sets up its config from
 `deploy/lichess-bot-config.yml` and puts the bot online. You'll need a brand new Lichess account for the bot
 and a token for it.
+
+## Running it on a server
+My PC can't stay on all day, so to keep the bot online I run it on a small Linux server, like the free Ubuntu
+ones from Oracle or Google. My model files aren't on GitHub, so they get copied over from my PC by hand. After
+that, `deploy/setup_server.sh` installs everything, asks for the bot's token once and sets MarkBot up as a
+systemd service, which starts the bot whenever the server boots and restarts it if it crashes.
+```
+git clone https://github.com/Lunaris12/MarkBot.git && mkdir -p MarkBot/models     # on the server
+scp models/mark_model.onnx models/moves.json models/book.json USER@SERVER_IP:MarkBot/models/   # on my PC, in the repo folder
+bash MarkBot/deploy/setup_server.sh                                                # on the server
+```
+After that `sudo systemctl status markbot` shows if it's running and `journalctl -u markbot -f` shows its live
+log. If I retrain, I copy the new model files over the same way and run `sudo systemctl restart markbot`.
 
 ## How well it plays like me
 `training/evaluate.py` tests the bot on my 150 most recent games, which it never trained on. For every

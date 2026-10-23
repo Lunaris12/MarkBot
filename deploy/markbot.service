@@ -1,0 +1,21 @@
+# The systemd service that keeps MarkBot running on a Linux server.
+# deploy/setup_server.sh fills in my username and the repo folder where it says @USER@ and @REPO@,
+# then copies this into /etc/systemd/system.
+
+[Unit]
+Description=MarkBot on Lichess
+# Wait until the server is actually online.
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+WorkingDirectory=@REPO@/lichess-bot
+ExecStart=@REPO@/.venv/bin/python lichess-bot.py
+# If it crashes or loses connection to Lichess, wait 30 seconds and start it again.
+Restart=always
+RestartSec=30
+
+[Install]
+# Start it whenever the server boots.
+WantedBy=multi-user.target
