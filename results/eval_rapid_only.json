@@ -1,0 +1,36 @@
+{
+  "model": "models/rapid_only.onnx",
+  "test_games": 150,
+  "positions": 4615,
+  "positions_from_book": 450,
+  "Base Maia-2": {
+    "all": 0.49404117009750814,
+    "first_12_moves": 0.433886662850601,
+    "after_move_12": 0.5306834030683403,
+    "by_time_control": {
+      "rapid": 0.5264873675631622,
+      "blitz": 0.5028717294192725,
+      "bullet": 0.4642451759364359
+    }
+  },
+  "Fine-tuned model": {
+    "all": 0.5343445287107259,
+    "first_12_moves": 0.5414997137950772,
+    "after_move_12": 0.5299860529986054,
+    "by_time_control": {
+      "rapid": 0.563162184189079,
+      "blitz": 0.5335035098915124,
+      "bullet": 0.5158910329171397
+    }
+  },
+  "MarkBot (book + model)": {
+    "all": 0.5438786565547129,
+    "first_12_moves": 0.5666857469948483,
+    "after_move_12": 0.5299860529986054,
+    "by_time_control": {
+      "rapid": 0.5688671556642216,
+      "blitz": 0.5507338864071474,
+      "bullet": 0.5209988649262202
+    }
+  }
+}

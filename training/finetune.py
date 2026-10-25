@@ -13,8 +13,13 @@ My games get split into three groups, oldest to newest:
 Every 250 steps it checks how often the model's top pick matches the move I really played in
 the validation games, and saves the model whenever that's a new best.
 
+With --only it trains on just some of my time controls, like --only rapid. That's for my experiment
+on whether a bot trained on only my rapid games plays more like me than one trained on everything.
+The validation games stay the same either way, so both versions get picked by the same yardstick.
+
 Usage:
   python training/finetune.py
+  python training/finetune.py --only rapid --out models/rapid_only.pt --log results/train_log_rapid_only.txt
   python training/finetune.py --epochs 2 --lr 3e-5 --out models/mark_model.pt
 """
 import argparse
@@ -49,6 +54,8 @@ def main():
     ap.add_argument("--eval-every", type=int, default=250, help="steps between validation checks")
     ap.add_argument("--device", default="auto", help="auto, cpu, cuda or mps")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--only", nargs="+", choices=["bullet", "blitz", "rapid", "daily"],
+                    help="only train on these time controls, e.g. --only rapid")
     args = ap.parse_args()
 
     torch.manual_seed(args.seed)
@@ -70,6 +77,11 @@ def main():
     is_val = not_test & torch.isin(d["game"], val_game_ids)
     train_idx = (not_test & ~is_val).nonzero().flatten()
     val_idx = is_val.nonzero().flatten()
+    if args.only:
+        # Drop every training position from a time control I didn't ask for.
+        wanted = torch.tensor([c in args.only for c in d["cat"]])
+        train_idx = train_idx[wanted[train_idx]]
+        say(f"training on {', '.join(args.only)} games only")
     say(f"device {device} | train {len(train_idx)} positions | validation {len(val_idx)} positions "
         f"({args.val_games} games) | test {int(d['is_test'].sum())} positions (untouched)")
 

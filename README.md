@@ -22,7 +22,7 @@ how often the bot picks the move I actually played.
 - [x] Day 8, lichess-bot config and launcher
 - [x] Day 9, server setup script and systemd service
 - [x] Day 10, bot live on Lichess around the clock
-- [ ] Day 11, experiment with rapid-only vs all games
+- [x] Day 11, experiment with rapid-only vs all games
 - [ ] Day 12, set the opponent rating from the real Lichess opponent
 - [ ] Day 13, automatic monthly retraining on new games
 - [ ] Day 14, accuracy by move number chart and write-up
@@ -123,6 +123,33 @@ same stretch my opening book covers. All of the gain is in the opening, where I 
 the bot goes from guessing my move 43% of the time to 59%. After move 12 it does no better than plain Maia-2, so
 my middlegame and endgame moves look a lot like any other 1800 player's, at least as far as 2,000 games can
 show. Nobody plays the same move in the same spot every time, so 100% isn't possible.
+
+## Rapid only vs all games
+Most of my games are blitz, but my 1800 is a rapid rating, so I wanted to know if a bot
+trained on only my rapid games would copy me better than one trained on everything. `finetune.py --only rapid`
+trains on just my rapid games, which is only 2,614 positions compared to 57,634 for the full model. I tried it
+once with the same settings as my main model and once with 10 passes over the data instead of 2 to make up for
+having so much less. All three were tested on the same 150 games with the same opening book.
+```
+python training/finetune.py --only rapid --epochs 10 --eval-every 50 --out models/rapid_only_10.pt --log results/train_log_rapid_only_10.txt
+python training/export_onnx.py --model models/rapid_only_10.pt --out models/rapid_only_10.onnx
+python training/evaluate.py GMMark12 --model models/rapid_only_10.onnx --out results/eval_rapid_only_10.json
+```
+
+| Full bot (book + model) | All moves | Rapid games | Blitz games | Bullet games |
+|---|---|---|---|---|
+| Plain Maia-2, no book | 49.4% | 52.6% | 50.3% | 46.4% |
+| Trained on all my games | 55.3% | 57.2% | 57.0% | 52.6% |
+| Rapid only, 2 passes | 54.4% | 56.9% | 55.1% | 52.1% |
+| Rapid only, 10 passes | 54.8% | 56.6% | 55.5% | 52.8% |
+
+Training on everything still wins, even on my rapid games, where I expected the rapid-only bot to have the edge.
+The gaps are small though, around a point, and with only about 1,200 rapid positions in the test set that's
+close to the size of random luck. So the honest takeaway is that rapid only isn't better, and since it isn't
+better the real bot keeps training on all my games. My guess is that my habits show up in blitz too, so having
+20 times more examples matters more than the time control matching. The numbers are in
+`results/eval_rapid_only.json` and `results/eval_rapid_only_10.json`, next to the main model's in
+`results/eval_results.json`.
 
 ## Credits
 MarkBot is built on [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024), the human move

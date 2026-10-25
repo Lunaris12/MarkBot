@@ -1,0 +1,9 @@
+training on rapid games only
+device cpu | train 2614 positions | validation 3587 positions (100 games) | test 4615 positions (untouched)
+base Maia-2 validation match: 0.509
+VALIDATION step 25: match 0.539  (new best, saved)
+step 50/81  loss 1.650  60s
+VALIDATION step 50: match 0.533
+VALIDATION step 75: match 0.541  (new best, saved)
+VALIDATION step 81: match 0.542  (new best, saved)
+done in 131s | best validation match 0.542 | model saved to models/rapid_only.pt

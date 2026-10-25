@@ -14,9 +14,15 @@ told the real ratings from that game, so it's the same situation I was in.
 It reports the match rate overall, for the first 12 moves which is what my opening book covers, and for everything after, then saves
 the numbers to results/eval_results.json. Nobody repeats the same move in the same spot every
 time, so 100% isn't possible so what matters is how much better the bot does than plain Maia-2.
+It also splits the match rate up by time control, so I can see if it copies my rapid games
+better than my blitz or bullet ones.
+
+--model tests a different model file instead of my normal one, which is how I compare the
+rapid-only version from my experiment against the one trained on all my games.
 
 Usage:
   python training/evaluate.py GMMark12
+  python training/evaluate.py GMMark12 --model models/rapid_only.onnx --out results/eval_rapid_only.json
 """
 import argparse
 import json
@@ -25,6 +31,7 @@ import sys
 
 import chess
 import numpy as np
+import onnxruntime as ort
 import torch
 from maia2 import model as maia2_model
 from maia2.utils import board_to_tensor, create_elo_dict, get_all_possible_moves, map_to_category, mirror_move
@@ -52,7 +59,7 @@ def test_positions(games):
                 clk = clock_seconds(node.comment)
                 if not (cat != "daily" and clk is not None and clk < MIN_CLOCK_SECONDS):
                     positions.append(dict(board=board.copy(), played=node.move.uci(), ply=ply,
-                                          my_elo=my_elo, opp_elo=opp_elo))
+                                          my_elo=my_elo, opp_elo=opp_elo, cat=cat))
             board.push(node.move)
     return positions
 
@@ -93,6 +100,7 @@ def main():
     ap.add_argument("--pgn", default="data/games.pgn")
     ap.add_argument("--holdout", type=int, default=150, help="the same test games prep_data.py set aside")
     ap.add_argument("--base-dir", default="maia2_models", help="where the Maia-2 base model is saved")
+    ap.add_argument("--model", default="models/mark_model.onnx", help="which fine-tuned model to test")
     ap.add_argument("--out", default="results/eval_results.json")
     args = ap.parse_args()
 
@@ -104,6 +112,7 @@ def main():
     # The bot but with a book that hasn't seen the test games.
     bot = markbot.MarkBot()
     bot.book = make_book(train_games)
+    bot.session = ort.InferenceSession(args.model, providers=["CPUExecutionProvider"])
 
     base_picks = base_maia_picks(positions, args.base_dir)
     model_picks, bot_picks, from_book = [], [], 0
@@ -122,13 +131,18 @@ def main():
 
     played = [p["played"] for p in positions]
     opening = np.array([p["ply"] < OPENING_PLIES for p in positions])
+    cats = np.array([p["cat"] for p in positions])
+    # Daily games are left out of the split since I've barely played any.
+    tcs = [c for c in ("rapid", "blitz", "bullet") if (cats == c).any()]
 
     def match_rates(picks):
         hit = np.array([a == b for a, b in zip(picks, played)])
         return {"all": float(hit.mean()), "first_12_moves": float(hit[opening].mean()),
-                "after_move_12": float(hit[~opening].mean())}
+                "after_move_12": float(hit[~opening].mean()),
+                "by_time_control": {c: float(hit[cats == c].mean()) for c in tcs}}
 
     results = {
+        "model": args.model,
         "test_games": len(test_games),
         "positions": len(positions),
         "positions_from_book": from_book,
@@ -142,6 +156,11 @@ def main():
     for name in ("Base Maia-2", "Fine-tuned model", "MarkBot (book + model)"):
         r = results[name]
         print(f"{name:24s} {r['all']:>10.1%} {r['first_12_moves']:>10.1%} {r['after_move_12']:>10.1%}")
+    print(f"\n{'by time control':24s}" + "".join(f"{c:>10s}" for c in tcs))
+    for name in ("Base Maia-2", "Fine-tuned model", "MarkBot (book + model)"):
+        by = results[name]["by_time_control"]
+        print(f"{name:24s}" + "".join(f"{by[c]:>10.1%}" for c in tcs))
+    print("positions" + " " * 15 + "".join(f"{int((cats == c).sum()):>10d}" for c in tcs))
     print(f"\nthe book answered {from_book} of {len(positions)} positions")
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
