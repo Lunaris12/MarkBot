@@ -8,6 +8,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 echo "Getting the latest code..."
+# setup_server.sh marks markbot.py as executable, which git would otherwise count as a local change
+# and then refuse to pull over it, so tell git to ignore file permissions here.
+git config core.fileMode false
 git pull --ff-only
 .venv/bin/pip install -q -r engine/requirements.txt
 chmod +x engine/markbot.py

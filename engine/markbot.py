@@ -21,6 +21,10 @@ Randomness controls how much it mixes things up: at 100 it varies its moves like
 it always plays my single most likely move. MinMoveProb (5% by default) makes it skip moves it
 thinks I'd almost never play, so it doesn't randomly throw in something I'd never actually do.
 
+On Lichess I don't have to set OpponentRating myself. lichess-bot tells the engine who it's playing
+at the start of every game through a standard UCI setting called UCI_Opponent, and the bot uses that
+person's real rating, so it plays a 1400 differently than a 2100 the same way I would.
+
 Usage:
   python engine/markbot.py              
 """
@@ -164,6 +168,7 @@ def uci_loop():
             send("option name UseBook type check default true")
             send("option name Randomness type spin default 100 min 0 max 150")
             send("option name MinMoveProb type spin default 5 min 0 max 50")
+            send("option name UCI_Opponent type string default none none human none")
             send("uciok")
 
         elif command == "isready":  # load everything now so the first move doesn't lag
@@ -174,7 +179,13 @@ def uci_loop():
             bot = bot or MarkBot()
             name = " ".join(parts[parts.index("name") + 1:parts.index("value")])
             value = " ".join(parts[parts.index("value") + 1:])
-            if name in bot.options:
+            if name == "UCI_Opponent":
+                # lichess-bot sends who we're playing as "title, rating, human/computer, name", for
+                # example "none 1650 human someone". If there's a rating given then play against that.
+                info = value.split()
+                if len(info) > 1 and info[1].isdigit():
+                    bot.options["OpponentRating"] = int(info[1])
+            elif name in bot.options:
                 current = bot.options[name]
                 bot.options[name] = (value.lower() == "true") if isinstance(current, bool) else int(value)
 

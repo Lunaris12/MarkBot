@@ -23,7 +23,7 @@ how often the bot picks the move I actually played.
 - [x] Day 9, server setup script and systemd service
 - [x] Day 10, bot live on Lichess around the clock
 - [x] Day 11, experiment with rapid-only vs all games
-- [ ] Day 12, set the opponent rating from the real Lichess opponent
+- [x] Day 12, set the opponent rating from the real Lichess opponent
 - [ ] Day 13, automatic monthly retraining on new games
 - [ ] Day 14, accuracy by move number chart and write-up
 
@@ -87,7 +87,9 @@ so it always plays my single most likely move.
 MarkBot is online on Lichess all the time as [MarkBot12](https://lichess.org/@/MarkBot12), so you can play it
 whenever by going to its profile and clicking Challenge. It only plays real people, one game at a time, in
 bullet, blitz, rapid or classical, and the games can be casual or rated. It never resigns or offers a draw since
-it has no idea when a game is lost, so every game gets played out to the end. If you want to run it yourself,
+it has no idea when a game is lost, so every game gets played out to the end. At the start of every game
+lichess-bot tells it who it's playing, and it uses that person's real Lichess rating, so it plays a 1400
+differently than a 2100 just like I would. If you want to run it yourself,
 `windows\lichess_bot.bat` downloads [lichess-bot](https://github.com/lichess-bot-devs/lichess-bot), sets up its
 config from `deploy/lichess-bot-config.yml` and puts the bot online. You'll need a brand new Lichess account
 for the bot and a token for it.

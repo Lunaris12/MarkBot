@@ -17,7 +17,7 @@ engine:
   ponder: false                  # MarkBot picks its move instantly so there's nothing to think about on their time
   uci_options:                   # the same settings you'd change in a chess app
     Rating: 1800
-    OpponentRating: 1800
+    OpponentRating: 1800         # only a fallback, the bot switches to the real opponent's rating each game
     UseBook: true
     Randomness: 100
     MinMoveProb: 5
