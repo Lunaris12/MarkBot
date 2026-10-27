@@ -94,6 +94,24 @@ def base_maia_picks(positions, base_dir):
     return picks
 
 
+def model_and_bot_picks(positions, bot):
+    """The fine-tuned model's top move on its own, and the full bot's top move (book first), in each position."""
+    model_picks, bot_picks, from_book = [], [], 0
+    for p in positions:
+        bot.options["Rating"], bot.options["OpponentRating"] = p["my_elo"], p["opp_elo"]
+        chances = bot.move_chances(p["board"])
+        model_pick = max(chances, key=chances.get)
+        model_picks.append(model_pick)
+        book_moves = bot.book.get(position_key(p["board"]))
+        if book_moves:
+            # The bot's most likely book move is the one I played most in that spot.
+            bot_picks.append(max(book_moves, key=book_moves.get))
+            from_book += 1
+        else:
+            bot_picks.append(model_pick)
+    return model_picks, bot_picks, from_book
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("user", help="chess.com username the bot is copying")
@@ -115,19 +133,7 @@ def main():
     bot.session = ort.InferenceSession(args.model, providers=["CPUExecutionProvider"])
 
     base_picks = base_maia_picks(positions, args.base_dir)
-    model_picks, bot_picks, from_book = [], [], 0
-    for p in positions:
-        bot.options["Rating"], bot.options["OpponentRating"] = p["my_elo"], p["opp_elo"]
-        chances = bot.move_chances(p["board"])
-        model_pick = max(chances, key=chances.get)
-        model_picks.append(model_pick)
-        book_moves = bot.book.get(position_key(p["board"]))
-        if book_moves:
-            # The bot's most likely book move is the one I played most in that spot.
-            bot_picks.append(max(book_moves, key=book_moves.get))
-            from_book += 1
-        else:
-            bot_picks.append(model_pick)
+    model_picks, bot_picks, from_book = model_and_bot_picks(positions, bot)
 
     played = [p["played"] for p in positions]
     opening = np.array([p["ply"] < OPENING_PLIES for p in positions])

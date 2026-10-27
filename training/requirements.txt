@@ -18,3 +18,5 @@ requests
 onnx
 onnxscript
 onnxruntime
+# for the accuracy by move number chart (accuracy_by_move.py)
+matplotlib

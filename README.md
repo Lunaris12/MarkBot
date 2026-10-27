@@ -25,7 +25,7 @@ how often the bot picks the move I actually played.
 - [x] Day 11, experiment with rapid-only vs all games
 - [x] Day 12, set the opponent rating from the real Lichess opponent
 - [x] Day 13, automatic monthly retraining on new games
-- [ ] Day 14, accuracy by move number chart and write-up
+- [x] Day 14, accuracy by move number chart and write-up
 
 ## Quick start
 ```
@@ -126,6 +126,21 @@ the bot goes from guessing my move 43% of the time to 59%. After move 12 it does
 my middlegame and endgame moves look a lot like any other 1800 player's, at least as far as 2,000 games can
 show. Nobody plays the same move in the same spot every time, so 100% isn't possible.
 
+## Where it plays like me
+The first 12 moves vs everything after split hides a lot, so `training/accuracy_by_move.py` breaks the same
+150 test games into groups of 5 moves and checks each one separately.
+
+![Rate that the bot plays my move](results/accuracy_by_move.png)
+
+Almost all of the difference is in the first 10 moves. Plain Maia-2 only guesses my first 5 moves 34% of the
+time, since it has no idea what openings I play, while MarkBot gets 66% of them. My fine-tuned model gets most
+of that on its own (63%) and the opening book adds the last few points. By moves 6 to 10 the book stops
+mattering, since the model has learned my lines well enough to pick the same moves, and the gap to plain
+Maia-2 shrinks to about 4 points. After that the lines basically sit on top of each other. Moves 26 to 30 are
+the only spot where MarkBot does noticeably worse than plain Maia-2 (47% vs 50%), which is probably just noise
+from a few hundred positions. Everyone gets better again late in the game, around 60% past move 40, because
+endgames have fewer sensible moves and a lot of them are forced.
+
 ## Monthly retraining
 I still play on chess.com, so the bot should keep up with how I play now. On the 1st of every month my PC
 runs `training/monthly_retrain.py`, which downloads my games again and stops right away if there's nothing
@@ -169,6 +184,15 @@ better the real bot keeps training on all my games. My guess is that my habits s
 20 times more examples matters more than the time control matching. The numbers are in
 `results/eval_rapid_only.json` and `results/eval_rapid_only_10.json`, next to the main model's in
 `results/eval_results.json`.
+
+## What I learned
+The main thing this project taught me is that my chess is more "me" in the opening than anywhere else. The
+bot copies my openings really well, but from the middlegame on I play like a pretty typical 1800, and 2,000
+games of mostly blitz weren't enough for the model to find anything personal in how I play those positions.
+Training on only my rapid games didn't help either, since more data mattered more than matching the time
+control. If I keep going with this, the things I'd try next are training on more of the middlegame
+specifically, giving the model my clock time so it knows when I'm rushing, and seeing whether the monthly
+retraining slowly pulls it closer to how I play now.
 
 ## Credits
 MarkBot is built on [Maia-2](https://github.com/CSSLab/maia2) (Tang et al., NeurIPS 2024), the human move
