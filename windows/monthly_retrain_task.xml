@@ -1,0 +1,37 @@
+<!-- The Windows Task Scheduler task that windows/schedule_retrain.bat sets up.
+     It runs windows/monthly_retrain.bat at 3am on the 1st of every month. If my PC is off or asleep
+     then, it runs as soon as the PC is back on, and it's allowed to run on a laptop that's unplugged.
+     REPO_FOLDER gets swapped for wherever this repo is on my PC when the task is set up. -->
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Retrains MarkBot on my newest chess.com games and updates the Lichess server if it got better.</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <CalendarTrigger>
+      <StartBoundary>2026-11-01T03:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByMonth>
+        <DaysOfMonth><Day>1</Day></DaysOfMonth>
+        <Months>
+          <January /><February /><March /><April /><May /><June />
+          <July /><August /><September /><October /><November /><December />
+        </Months>
+      </ScheduleByMonth>
+    </CalendarTrigger>
+  </Triggers>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>true</RunOnlyIfNetworkAvailable>
+    <ExecutionTimeLimit>PT6H</ExecutionTimeLimit>
+    <Enabled>true</Enabled>
+  </Settings>
+  <Actions>
+    <Exec>
+      <Command>REPO_FOLDER\windows\monthly_retrain.bat</Command>
+      <WorkingDirectory>REPO_FOLDER</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>

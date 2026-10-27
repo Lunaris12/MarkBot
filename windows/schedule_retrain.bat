@@ -7,10 +7,9 @@ setlocal
 cd /d "%~dp0.."
 if not exist ".venv\Scripts\python.exe" goto :no_setup
 
-schtasks /create /tn "MarkBot monthly retrain" /tr "\"%CD%\windows\monthly_retrain.bat\"" /sc monthly /d 1 /st 03:00 /f >nul || goto :failed
-rem schtasks can't turn on "run as soon as possible after a missed start" by itself, so PowerShell does that part.
-rem It also lets it run on a laptop that's unplugged.
-powershell -NoProfile -Command "$t = Get-ScheduledTask -TaskName 'MarkBot monthly retrain'; $t.Settings.StartWhenAvailable = $true; $t.Settings.DisallowStartIfOnBatteries = $false; $t.Settings.StopIfGoingOnBatteries = $false; Set-ScheduledTask -InputObject $t | Out-Null" || goto :failed
+rem The task itself is described in windows\monthly_retrain_task.xml. PowerShell fills in where this repo is
+rem and registers it, replacing the old one if there is one.
+powershell -NoProfile -Command "$x = (Get-Content -Raw 'windows\monthly_retrain_task.xml').Replace('REPO_FOLDER', (Get-Location).Path); Register-ScheduledTask -TaskName 'MarkBot monthly retrain' -Xml $x -User $env:USERNAME -Force | Out-Null" || goto :failed
 
 if exist "deploy\server.txt" (
   echo Checking that this PC can reach the server. gcloud might ask a couple of questions the first time.
