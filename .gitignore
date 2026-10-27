@@ -4,6 +4,8 @@
 lichess-bot/
 *.token
 .env
+# My Google server's login and zone for training/monthly_retrain.py, kept off GitHub.
+deploy/server.txt
 
 # Model weights: too big for git history; published as GitHub Release assets.
 *.onnx

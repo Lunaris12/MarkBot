@@ -24,7 +24,7 @@ how often the bot picks the move I actually played.
 - [x] Day 10, bot live on Lichess around the clock
 - [x] Day 11, experiment with rapid-only vs all games
 - [x] Day 12, set the opponent rating from the real Lichess opponent
-- [ ] Day 13, automatic monthly retraining on new games
+- [x] Day 13, automatic monthly retraining on new games
 - [ ] Day 14, accuracy by move number chart and write-up
 
 ## Quick start
@@ -125,6 +125,23 @@ same stretch my opening book covers. All of the gain is in the opening, where I 
 the bot goes from guessing my move 43% of the time to 59%. After move 12 it does no better than plain Maia-2, so
 my middlegame and endgame moves look a lot like any other 1800 player's, at least as far as 2,000 games can
 show. Nobody plays the same move in the same spot every time, so 100% isn't possible.
+
+## Monthly retraining
+I still play on chess.com, so the bot should keep up with how I play now. On the 1st of every month my PC
+runs `training/monthly_retrain.py`, which downloads my games again and stops right away if there's nothing
+new. If there is, it trains a new model and opening book off to the side in `models/candidate`, then tests
+both the new model and the current one on my 150 most recent games. The new one only replaces the current
+one if it matches my moves at least as often, and the old one gets kept in `models/previous` just in case.
+Every run adds a line to `results/retrain_history.txt` saying what happened.
+
+Training is way too heavy for the free server, so it runs on my PC and then sends the new files to the
+server itself with Google's `gcloud` tool. To set that up I installed the
+[Google Cloud CLI](https://cloud.google.com/sdk/docs/install), ran `gcloud init`, and made
+`deploy/server.txt` with one line holding my server login and zone, like
+`myname@my-server us-east1-b`. The login is whatever `whoami` prints in the server's
+SSH window. That file stays off GitHub. Then running `windows\schedule_retrain.bat` once sets up the
+monthly schedule in Windows Task Scheduler and checks that the PC can reach the server. Without
+`server.txt` it still retrains every month, and I just copy the files over by hand like before.
 
 ## Rapid only vs all games
 Most of my games are blitz, but my 1800 is a rapid rating, so I wanted to know if a bot
